@@ -10,10 +10,10 @@
 
 module.exports = function(grunt) {
 
-	var _ = grunt.util._,
-		crypto = require( "crypto" ),
-		fs = require( "fs" ),
-		path = require( "path" );
+  var _ = grunt.util._,
+    crypto = require( "crypto" ),
+    fs = require( "fs" ),
+    path = require( "path" );
 
   grunt.registerMultiTask('verify-hash-manifest', 'Verifies a hash manifest file.', function() {
     // Merge task-specific and/or target-specific options with these defaults.
@@ -40,15 +40,14 @@ module.exports = function(grunt) {
       hash_list = hash_manifest.trim().split("\n");
       hash_list.forEach(function( line ) {
         grunt.log.debug( line );
-        var target_file = line.substr(0, line.indexOf(" "));
-        var abs_path_target_file = path.resolve( options.cwd, target_file );
-        var target_file_hex = line.substr(line.indexOf(" ")+1);
+        var target_file_hex = line.substr(0, line.indexOf(" "));
+        var target_file = line.substr(line.indexOf(" ")+1).trim();
         var hash = crypto.createHash( options.algo );
-        if (!grunt.file.exists(abs_path_target_file)) {
+        if (!grunt.file.exists(target_file.trim())) {
           grunt.log.error('File no longer at: '+ target_file);
           return;
         }
-        hash.update( grunt.file.read( abs_path_target_file, { encoding: null }) ); 
+        hash.update( grunt.file.read( target_file, { encoding: null }) );
         if ( target_file_hex !== hash.digest( "hex" ) ) {
           grunt.log.error('File does not match hex in manifest: '+ target_file);
           return;
@@ -64,7 +63,7 @@ module.exports = function(grunt) {
     // Fail task if errors were logged.
     // use grunt.log.error
     if (this.errorCount > 0) { return false; }
-    
+
     // Otherwise, print a success message.
     grunt.log.ok('Verified ' + files.length + ' manifest files.');
   });
